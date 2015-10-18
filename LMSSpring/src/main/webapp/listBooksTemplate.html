@@ -1,0 +1,50 @@
+
+<!-- <link rel="stylesheet" type="text/css"
+	href="./Bootstrap/bootstrap-select.min.css">
+ -->
+<div class="table-responsive">
+	<div class="col-md-2 col-xs-9 nopadding">
+		<input type="text" class="form-control"
+			placeholder="Enter text to search" id="searchText"
+			ng-keyup="listBooks()" ng-model="searchText">
+	</div>
+	<div align="right">
+		<button type="button" class="btn btn-info" data-toggle="modal"
+			ng-click="createBook()">
+			<span class="glyphicon glyphicon-plus-sign"></span> Create New Book
+		</button>
+	</div>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Book Title</th>
+				<th>Book Publisher</th>
+				<th>Book Authors</th>
+				<th>Book Genres</th>
+				<th>Edit</th>
+				<th>Delete</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="book in books">
+				<td>{{book.title}}</td>
+				<td>{{book.publisher.publisherName}}</td>
+				<td><span ng-repeat="author in book.authors">
+						{{author.authorName}}&nbsp, </span></td>
+				<td><span ng-repeat="genre in book.genres">
+						{{genre.genreName}}&nbsp, </span></td>
+				<td><button type="button" class="btn btn-primary"
+						ng-click="editBook(book)">Edit</button></td>
+				<td><button type="button" class="btn btn-danger"
+						ng-click="deleteBook(book)">Delete</button></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div align="middle">
+	<ul class="pagination" id="pages">
+
+	</ul>
+</div>
+<!-- <script src="./scripts/bootstrap-notify.min.js"></script>
+<script src="./Bootstrap/bootstrap-select.min.js"></script> -->
