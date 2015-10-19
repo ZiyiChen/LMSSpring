@@ -1,39 +1,37 @@
-<div class="modal fade" id="createBookModal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-					<h4 class="modal-title">Create Book</h4>
-				</div>
-				<div class="modal-body">
-					<form name="addBookForm" action="addBook" method="post">
-						New Book Title: <input type="text" name="bookTitle" class="form-control" id="crtBkTitle"/> 
-						
-						<br>New Book Publisher: 
-						<br><select class="selectpicker" data-width="100%" name="bookPublisher" id="crtBkPubSel" data-live-search="true">
-						<option value=-1 selected="selected">...</option>
-						
-						</select> 
-						
-						<br><br>New Book Authors: 
-						<br><select name="addedAuthors" data-width="100%" class="selectpicker" id="crtBkAuthSel" data-live-search="true" multiple>
-				        </select>
-				        
-						<br><br>New Book Genres: 
-						<br><select name="addedGenres" data-width="100%" class="selectpicker" id="crtBkGenSel" data-live-search="true" multiple>
-				        </select>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary" onclick="javascript:addBook();" data-dismiss="modal">Add</button>
-				</div>
+<link rel="stylesheet" href="./Bootstrap/isteven-multi-select.css">
+<div modal="createBookModal">
+	<div class="modal-header">
+		<h4 class="modal-title">Create Book</h4>
+		<div class="modal-header">
+			<div class="modal-body">
+				New Book Title: <input type="text" name="title"
+					class="form-control" ng-model='title'/> <br>New Book
+				Publisher:<br>
+				<isteven-multi-select input-model="publishers"
+					output-model="selectedPublisher" button-label="publisherName"
+					item-label="publisherName" tick-property="ticked"
+					selection-mode="single" search-property="publisherName"
+					helper-elements="filter"> </isteven-multi-select>
+
+				<br> <br>New Book Authors: <br>
+				<isteven-multi-select input-model="authors"
+					output-model="selectedAuthros" button-label="authorName"
+					item-label="authorName" tick-property="ticked"
+					search-property="authorName" helper-elements="all reset filter">
+				</isteven-multi-select>
+				<br> <br>New Book Genres: <br>
+				<isteven-multi-select input-model="genres"
+					output-model="selectedGenres" button-label="genreName"
+					item-label="genreName" tick-property="ticked"
+					search-property="genreName" helper-elements="all reset filter">
+				</isteven-multi-select>
 			</div>
-			<!-- /.modal-content -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" ng-click="cancel()">Close</button>
+				<button type="button" class="btn btn-primary" ng-click="add()">Add</button>
+			</div>
 		</div>
-		<!-- /.modal-dialog -->
+		<!-- /.modal-content -->
 	</div>
-	<!-- /.modal -->
+	<!-- /.modal-dialog -->
+</div>

@@ -33,7 +33,7 @@ public class AdminController {
 	@Autowired
 	private AdministratorManagementSys adminService;
 	
-	@RequestMapping(value = "/addBook", method = RequestMethod.POST, consumes = "application/json")
+	@RequestMapping(value = "/addBook", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
 	public @ResponseBody String addBook(@RequestBody Book bk, Locale locale, Model model) {
 		try {
 			adminService.insertBook(bk);
@@ -87,6 +87,18 @@ public class AdminController {
 		}catch (Exception e) {
 			e.printStackTrace();
 			return "List Book failed. Reason: " + e.getMessage();
+		}
+	}
+	
+	@RequestMapping(value = "/listAuthors", method = RequestMethod.GET, produces = "application/json")
+	public @ResponseBody String listAuthors () {
+		try {
+			List<Author> aus = adminService.getAllAuthors();
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.writeValueAsString(aus);
+		}catch (Exception e) {
+			e.printStackTrace();
+			return "List Author failed. Reason: " + e.getMessage();
 		}
 	}
 	
