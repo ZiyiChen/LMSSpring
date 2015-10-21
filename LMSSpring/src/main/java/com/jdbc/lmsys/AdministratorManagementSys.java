@@ -9,10 +9,10 @@ package com.jdbc.lmsys;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jdbc.lmdao.AuthorDAO;
 import com.jdbc.lmdao.BookDAO;
@@ -99,14 +99,17 @@ public class AdministratorManagementSys {
 		return res;
 	}
 	
+	@Transactional
 	public void updateBook (Book bk) throws SQLException {
 		bkDAO.update(bk);
 	}
 	
+	@Transactional
 	public void deleteBook (Book bk) throws SQLException {
 		bkDAO.delete(bk);
 	}
 	
+	@Transactional
 	public void insertBook (Book bk) throws SQLException {
 		bkDAO.insert(bk);
 	}
@@ -119,14 +122,17 @@ public class AdministratorManagementSys {
 		return pubDAO.readOne(id);
 	}
 	
+	@Transactional
 	public void updatePublisher (Publisher pub) throws SQLException {
 		pubDAO.update(pub);
 	}
 	
+	@Transactional
 	public void deletePublisher (Publisher pub) throws SQLException {
 		pubDAO.delete(pub);
 	}
 	
+	@Transactional
 	public void insertPublisher (Publisher pub) throws SQLException {
 		pubDAO.insert(pub);
 	}
@@ -139,14 +145,17 @@ public class AdministratorManagementSys {
 		return auDAO.readOne(id);
 	}
 	
+	@Transactional
 	public void updateAuthor (Author auth) throws SQLException {
 		auDAO.update(auth);
 	}
 	
+	@Transactional
 	public void deleteAuthor (Author auth) throws SQLException {
 		auDAO.delete(auth);
 	}
 	
+	@Transactional
 	public void insertAuthor (Author auth) throws SQLException {
 		auDAO.insert(auth);
 	}
@@ -155,14 +164,17 @@ public class AdministratorManagementSys {
 		return bhDAO.readAll();
 	}
 	
+	@Transactional
 	public void updateBranch (Branch bh) throws SQLException {
 		bhDAO.update(bh);
 	}
 	
+	@Transactional
 	public void deleteBranch (Branch bh) throws SQLException {
 		bhDAO.delete(bh);
 	}
 	
+	@Transactional
 	public void insertBranch (Branch bh) throws SQLException {
 		bhDAO.insert(bh);
 	}
@@ -171,25 +183,23 @@ public class AdministratorManagementSys {
 		return brDAO.readAll();
 	}
 	
+	@Transactional
 	public void updateBorrower (Borrower br) throws SQLException {
 		brDAO.update(br);
 	}
 	
+	@Transactional
 	public void deleteBorrower (Borrower br) throws SQLException {
 		brDAO.delete(br);
 	}
 	
+	@Transactional
 	public void insertBorrower (Borrower br) throws SQLException {
 		brDAO.insert(br);
 	}
 	
 	public List<BookLoans> getAllBookLoans () throws SQLException {
 		return blDAO.readAll();
-	} 
-	
-	public void overrideDueDate (BookLoans bl, Date date) throws SQLException {
-		bl.setDueDate(date);
-		blDAO.update(bl);
 	}
 	
 	public List<Genre> getAllGenres () throws SQLException {
@@ -246,6 +256,7 @@ public class AdministratorManagementSys {
 		return blDAO.countBookLoans();
 	}
 
+	@Transactional
 	public void overrideDueDate(BookLoans bl) throws SQLException {
 		blDAO.overrideDueDate(bl);
 	}

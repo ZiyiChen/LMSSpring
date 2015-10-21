@@ -6,8 +6,10 @@
  */
 package com.spring.lms.config;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.jdbc.lmdao.AuthorDAO;
 import com.jdbc.lmdao.BookDAO;
@@ -28,35 +30,52 @@ public class LMSConfiguration {
 
 	@Bean
 	public BookDAO bookDAO() {
-		return new BookDAO();
+		return new BookDAO(template());
 	}
 	@Bean
 	public AuthorDAO authorDAO() {
-		return new AuthorDAO();
+		return new AuthorDAO(template());
 	}
 	@Bean
 	public PublisherDAO pubDAO() {
-		return new PublisherDAO();
+		return new PublisherDAO(template());
 	}
 	
 	@Bean
 	public GenreDAO genDAO() {
-		return new GenreDAO();
+		return new GenreDAO(template());
 	}
 	
 	@Bean
 	public BookLoansDAO blDAO() {
-		return new BookLoansDAO();
+		return new BookLoansDAO(template());
 	}
 	
 	@Bean
 	public BranchDAO bhDAO () {
-		return new BranchDAO();
+		return new BranchDAO(template());
 	}
 	
 	@Bean
 	public BorrowerDAO brDAO () {
-		return new BorrowerDAO();
+		return new BorrowerDAO(template());
 	}
 	
+	@Bean
+	public JdbcTemplate template() {
+		JdbcTemplate template = new JdbcTemplate();
+		template.setDataSource(datasource());
+		return template;
+	}
+	
+	@Bean
+	public BasicDataSource datasource() {
+		BasicDataSource ds = new BasicDataSource();
+		ds.setDriverClassName("com.mysql.jdbc.Driver");
+		ds.setUrl("jdbc:mysql://localhost:3306/library");
+		ds.setUsername("root");
+		ds.setPassword("password");
+		
+		return ds;
+	}
 }

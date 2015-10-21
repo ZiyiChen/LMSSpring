@@ -11,32 +11,41 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+
 import com.jdbc.lmdo.Author;
 import com.jdbc.lmdo.Book;
 
-public class AuthorDAO extends BaseDAO {
+public class AuthorDAO extends BaseDAO implements
+ResultSetExtractor<List<Author>>{
+
+	public AuthorDAO(JdbcTemplate temp) {
+		super(temp);
+	}
+
 	public void insert(Author auth) throws SQLException {
-		int id = saveWithId("insert into tbl_author (authorName) values (?)",
+		template.update("insert into tbl_author (authorName) values (?)",
 				new Object[] {auth.getAuthorName()});
-		auth.setAuthorId(id);
 	}
 
 	public void update(Author auth) throws SQLException {
-		save("update tbl_author set authorName = ? where authorId = ?",
+		template.update("update tbl_author set authorName = ? where authorId = ?",
 				new Object[] { auth.getAuthorName(), auth.getAuthorId() });
 	}
 
 	public void delete(Author auth) throws SQLException {
-		save("delete from tbl_book_authors where authorId = ?",
+		template.update("delete from tbl_book_authors where authorId = ?",
 				new Object[] { auth.getAuthorId() });
-		save("delete from tbl_author where authorId = ?",
+		template.update("delete from tbl_author where authorId = ?",
 				new Object[] { auth.getAuthorId() });
 	}
 
 	public Author readOne(int authorId) throws SQLException {
-		List<Author> authors = (List<Author>) read(
+		List<Author> authors = template.query(
 				"select * from tbl_author where authorId = ?",
-				new Object[] { authorId });
+				new Object[] { authorId }, this);
 		if (authors != null && authors.size() > 0) {
 			return authors.get(0);
 		} else {
@@ -45,28 +54,28 @@ public class AuthorDAO extends BaseDAO {
 	}
 
 	public List<Author> readAll() throws SQLException {
-		return (List<Author>) read("select * from tbl_author", null);
+		return template.query("select * from tbl_author", this);
 	}
 
 	public List<Author> readAllByBook(Book bk) throws SQLException {
-		return (List<Author>) read(
+		return template.query(
 				"select * from tbl_author where authorId in (select authorId from tbl_book_authors where bookId = ?)",
-				new Object[] { bk.getBookId() });
+				new Object[] { bk.getBookId() }, this);
 	}
 
 	public List<Author> searchSizedAuthors(int pageNo, int pageSize, String search) throws SQLException {
 		search = '%' + search + '%';
-		return (List<Author>) read (setPageLimits(pageNo, pageSize, "select * from tbl_author where authorName like ?"),
-				new Object[] {search});
+		return template.query (setPageLimits(pageNo, pageSize, "select * from tbl_author where authorName like ?"),
+				new Object[] {search}, this);
 	}
-	
+
 	public int countAuthors(String searchText) throws SQLException {
 		searchText = '%' + searchText + '%';
-		return count ("select count(*) from tbl_author where authorName like ?", searchText);
+		return template.queryForObject("select count(*) from tbl_author where authorName like ?", new Object[] {searchText}, Integer.class);
 	}
-	
+
 	@Override
-	protected List<Author> convertResult(ResultSet rs) throws SQLException {
+	public List<Author> extractData(ResultSet rs) throws SQLException, DataAccessException {
 		List<Author> authors = new ArrayList<Author>();
 		while (rs.next()) {
 			Author auth = new Author();

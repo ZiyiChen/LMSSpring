@@ -11,32 +11,41 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jdbc.lmdo.Borrower;
-import com.jdbc.lmdo.Book;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
-public class BorrowerDAO extends BaseDAO{
+import com.jdbc.lmdo.Borrower;
+
+public class BorrowerDAO extends BaseDAO implements ResultSetExtractor<List<Borrower>>{
+	/**
+	 * @param temp
+	 */
+	public BorrowerDAO(JdbcTemplate temp) {
+		super(temp);
+	}
+
 	public void insert(Borrower borr) throws SQLException {
-		int id = saveWithId("insert into tbl_borrower (name, address, phone) values (?)",
+		template.update("insert into tbl_borrower (name, address, phone) values (?)",
 				new Object[] {borr.getName(), borr.getAddress(), borr.getPhone()});
-		borr.setCardNo(id);
 	}
 
 	public void update(Borrower borr) throws SQLException {
-		save("update tbl_borrower set name = ?, address = ?, phone = ? where cardNo = ?",
+		template.update("update tbl_borrower set name = ?, address = ?, phone = ? where cardNo = ?",
 				new Object[] {borr.getName(), borr.getAddress(), borr.getPhone(), borr.getCardNo()});
 	}
 
 	public void delete(Borrower borr) throws SQLException {
-		save("delete from tbl_book_loans where cardNo = ?",
+		template.update("delete from tbl_book_loans where cardNo = ?",
 				new Object[]{borr.getCardNo()});
-		save("delete from tbl_borrower where cardNo = ?",
+		template.update("delete from tbl_borrower where cardNo = ?",
 				new Object[] {borr.getCardNo()});
 	}
 
 	public Borrower readOne(int cardNo) throws SQLException {
-		List<Borrower> borrs = (List<Borrower>) read(
+		List<Borrower> borrs = template.query(
 				"select * from tbl_borrower where cardNo = ?",
-				new Object[] { cardNo });
+				new Object[] { cardNo }, this);
 		if (borrs != null && borrs.size() > 0) {
 			return borrs.get(0);
 		} else {
@@ -45,11 +54,11 @@ public class BorrowerDAO extends BaseDAO{
 	}
 
 	public List<Borrower> readAll() throws SQLException {
-		return (List<Borrower>) read("select * from tbl_borrower", null);
+		return template.query("select * from tbl_borrower", this);
 	}
 
 	@Override
-	protected List<Borrower> convertResult(ResultSet rs) throws SQLException {
+	public List<Borrower> extractData(ResultSet rs) throws SQLException, DataAccessException {
 		List<Borrower> borrs = new ArrayList<Borrower>();
 		while (rs.next()) {
 			Borrower borr = new Borrower();

@@ -1,0 +1,40 @@
+<div class="modal fade" id="editBookModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Edit Book</h4>
+				</div>
+				<div class="modal-body">
+					<form name="editBookForm" action="editBook" method="post">
+						<input type="hidden" id="edBkId">
+						Book Title: <input type="text" name="bookTitle" class="form-control" id="edBkTitle"/> 
+						
+						<br>Book Publisher: 
+						<br><select class="selectpicker" data-width="100%" name="bookPublisher" id="edBkPubSel" data-live-search="true">
+						<option value=-1 selected="selected">...</option>
+						
+						</select> 
+						
+						<br><br>Book Authors: 
+						<br><select name="addedAuthors" data-width="100%" class="selectpicker" id="edBkAuthSel" data-live-search="true" multiple>
+				        </select>
+				        
+						<br><br>Book Genres: 
+						<br><select name="addedGenres" data-width="100%" class="selectpicker" id="edBkGenSel" data-live-search="true" multiple>
+				        </select>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" onclick="javascript:updateBook();" data-dismiss="modal">Update</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->

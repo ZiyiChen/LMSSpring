@@ -11,6 +11,7 @@ import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,16 +29,17 @@ import com.jdbc.lmdo.Publisher;
 import com.jdbc.lmsys.AdministratorManagementSys;
 
 @Controller
+@EnableTransactionManagement
 public class AdminController {
 
 	@Autowired
 	private AdministratorManagementSys adminService;
 	
-	@RequestMapping(value = "/addBook", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	@RequestMapping(value = "/addBook", method = RequestMethod.POST, consumes = "application/json", produces="text/plain")
 	public @ResponseBody String addBook(@RequestBody Book bk, Locale locale, Model model) {
 		try {
 			adminService.insertBook(bk);
-			return "Book added succesfully";
+			return "added succesfully";
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "Book add failed. Reason: " + e.getMessage();

@@ -11,32 +11,43 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+
 import com.jdbc.lmdo.Branch;
 
-public class BranchDAO extends BaseDAO{
+public class BranchDAO extends BaseDAO implements
+ResultSetExtractor<List<Branch>>{
+	/**
+	 * @param temp
+	 */
+	public BranchDAO(JdbcTemplate temp) {
+		super(temp);
+	}
+
 	public void insert(Branch bh) throws SQLException {
-		int branchId = saveWithId("insert into tbl_library_branch (branchName, branchAddress) values (?, ?)",
+		template.update("insert into tbl_library_branch (branchName, branchAddress) values (?, ?)",
 				new Object[]{bh.getName(), bh.getAddress()});
-		bh.setBranchId(branchId);
 	}
 	
 	public void update (Branch branch) throws SQLException {
-		save("update tbl_library_branch set branchName = ?, branchAddress = ? where branchId = ?",
+		template.update("update tbl_library_branch set branchName = ?, branchAddress = ? where branchId = ?",
 				new Object[] {branch.getName(), branch.getAddress(), branch.getBranchId()});
 	}
 	
 	public void delete (Branch branch) throws SQLException {
-		save("delete from tbl_book_copies where branchId = ?",
+		template.update("delete from tbl_book_copies where branchId = ?",
 				new Object[]{branch.getBranchId()});
-		save("delete from tbl_book_loans where branchId = ?",
+		template.update("delete from tbl_book_loans where branchId = ?",
 				new Object[]{branch.getBranchId()});
-		save("delete from tbl_library_branch where branchId = ?",
+		template.update("delete from tbl_library_branch where branchId = ?",
 				new Object[]{branch.getBranchId()});
 	}
 	
 	public Branch readOne (int branchId) throws SQLException {
-		List<Branch> bhs = (List<Branch>) read("select * from tbl_library_branch where branchId = ?",
-				new Object[]{branchId});
+		List<Branch> bhs = template.query("select * from tbl_library_branch where branchId = ?",
+				new Object[]{branchId}, this);
 		if (bhs != null && bhs.size() > 0)
 			return bhs.get(0);
 		else
@@ -44,12 +55,12 @@ public class BranchDAO extends BaseDAO{
 	}
 	
 	public List<Branch> readAll() throws SQLException {
-		return (List<Branch>) read("select * from tbl_library_branch",
-				null);
+		return template.query("select * from tbl_library_branch",
+				this);
 	}
 	
 	@Override
-	protected Object convertResult(ResultSet rs) throws SQLException {
+	public List<Branch> extractData(ResultSet rs) throws SQLException, DataAccessException{
 		List<Branch> bhs = new ArrayList<Branch>();
 		while(rs.next()) {
 			Branch bh = new Branch();

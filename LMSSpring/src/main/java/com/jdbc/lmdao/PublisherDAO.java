@@ -11,31 +11,40 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jdbc.lmdo.Author;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+
 import com.jdbc.lmdo.Publisher;
 
-public class PublisherDAO extends BaseDAO{
+public class PublisherDAO extends BaseDAO implements ResultSetExtractor<List<Publisher>>{
+	/**
+	 * @param temp
+	 */
+	public PublisherDAO(JdbcTemplate temp) {
+		super(temp);
+	}
+
 	public void insert(Publisher pub) throws SQLException {
-		int pubId = saveWithId("insert into tbl_publisher (publisherName, publisherAddress, publisherPhone) values (?, ?, ?)",
+		int pubId = template.update("insert into tbl_publisher (publisherName, publisherAddress, publisherPhone) values (?, ?, ?)",
 				new Object[]{pub.getPublisherName(), pub.getAddress(), pub.getPhone()});
 		pub.setPublisherId(pubId);
 	}
 	
 	public void update(Publisher pub) throws SQLException {
-		save("update tbl_publisher set publisherName = ?, publisherAddress = ?, publisherPhone = ? where publisherId = ?",
+		template.update("update tbl_publisher set publisherName = ?, publisherAddress = ?, publisherPhone = ? where publisherId = ?",
 				new Object[]{pub.getPublisherName(), pub.getAddress(), pub.getPhone(), pub.getPublisherId()});
 	}
 	
 	public void delete (Publisher pub) throws SQLException {
-		save("update tbl_book set pubId = NULL where pubId = ?",
+		template.update("update tbl_book set pubId = NULL where pubId = ?",
 				new Object[]{pub.getPublisherId()});
-		save("delete from tbl_publisher where publisherId = ?",
+		template.update("delete from tbl_publisher where publisherId = ?",
 				new Object[]{pub.getPublisherId()});
 	}
 	
 	public Publisher readOne (int pubId) throws SQLException {
-		List<Publisher> pubs = (List<Publisher>) read("select * from tbl_publisher where publisherId = ?",
-				new Object[]{pubId});
+		List<Publisher> pubs =  template.query("select * from tbl_publisher where publisherId = ?",
+				new Object[]{pubId}, this);
 		if (pubs != null && pubs.size() > 0) {
 			return pubs.get(0);
 		}else {
@@ -44,11 +53,11 @@ public class PublisherDAO extends BaseDAO{
 	}
 	
 	public List<Publisher> readAll () throws SQLException{
-		return (List<Publisher>) read("select * from tbl_publisher", null);
+		return  template.query("select * from tbl_publisher", this);
 	}
 
 	@Override
-	protected Object convertResult(ResultSet rs) throws SQLException {
+	public List<Publisher> extractData(ResultSet rs) throws SQLException {
 		List<Publisher> pubs = new ArrayList<Publisher>();
 		while (rs.next()) {
 			Publisher pub = new Publisher();
@@ -64,13 +73,13 @@ public class PublisherDAO extends BaseDAO{
 	public List<Publisher> searchSizedPublishers(int pageNo, int pageSize,
 			String search) throws SQLException {
 		search = '%' + search + '%';
-		return (List<Publisher>) read (setPageLimits(pageNo, pageSize, "select * from tbl_publisher where publisherName like ?"),
-				new Object[] {search});
+		return template.query (setPageLimits(pageNo, pageSize, "select * from tbl_publisher where publisherName like ?"),
+				new Object[] {search}, this);
 	}
 
 	public int countPublishers(String search) throws SQLException {
 		search = '%' + search + '%';
-		return count ("select count(*) from tbl_publisher where publisherName like ?", search);
+		return template.queryForObject("select count(*) from tbl_publisher where publisherName like ?", new Object[] {search}, Integer.class);
 	}
 	
 	

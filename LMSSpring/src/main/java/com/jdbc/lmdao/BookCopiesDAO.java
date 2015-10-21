@@ -11,61 +11,79 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+
 import com.jdbc.lmdo.Book;
 import com.jdbc.lmdo.BookCopies;
 import com.jdbc.lmdo.Branch;
 
-public class BookCopiesDAO extends BaseDAO {
+public class BookCopiesDAO extends BaseDAO implements ResultSetExtractor<List<BookCopies>>{
+	/**
+	 * @param temp
+	 */
+	
+	@Autowired
+	BookDAO bkDAO;
+	
+	@Autowired
+	BranchDAO bhDAO;
+
+	public BookCopiesDAO(JdbcTemplate temp) {
+		super(temp);
+	}
+
 	public void insert (BookCopies cpy) throws SQLException {
-		save("insert into tbl_book_copies (bookId, branchId, noOfCopies) values (?, ?, ?)",
+		template.update("insert into tbl_book_copies (bookId, branchId, noOfCopies) values (?, ?, ?)",
 				new Object[]{cpy.getBook().getBookId(), cpy.getBranch().getBranchId(), cpy.getOnOfCopies()});
 	}
-	
+
 	public void update (BookCopies cpy) throws SQLException {
-		save("update tbl_book_copies set noOfCopies = ? where bookId = ? and branchId = ?",
+		template.update("update tbl_book_copies set noOfCopies = ? where bookId = ? and branchId = ?",
 				new Object[]{cpy.getOnOfCopies(), cpy.getBook().getBookId(), cpy.getBranch().getBranchId()});
 	}
-	
+
 	public void delete (BookCopies cpy) throws SQLException {
-		save("delete from tbl_book_copies where bookId = ? and branchId = ?",
+		template.update("delete from tbl_book_copies where bookId = ? and branchId = ?",
 				new Object[]{cpy.getBook().getBookId(), cpy.getBranch().getBranchId()});
 	}
-	
+
 	public BookCopies readOne (Book bk, Branch bh) throws SQLException {
-		List<BookCopies> cpys = (List<BookCopies>) read(
+		List<BookCopies> cpys = template.query(
 				"select * from tbl_book_copies where bookId = ? and branchId = ?",
-				new Object[]{bk.getBookId(), bh.getBranchId()});
+				new Object[]{bk.getBookId(), bh.getBranchId()}, this);
 		if (cpys != null && cpys.size() > 0)
 			return cpys.get(0);
 		else
 			return null;
 	}
-	
+
 	public List<BookCopies> readAll () throws SQLException {
-		return (List<BookCopies>) read ("select * from tbl_book_copies", null);
+		return template.query ("select * from tbl_book_copies", this);
 	}
-	
+
 	public List<BookCopies> readAllByBook (Book bk) throws SQLException {
-		return (List<BookCopies>) read (
+		return template.query (
 				"select * from tbl_book_copies where bookId = ?", 
-				new Object[]{bk.getBookId()});
+				new Object[]{bk.getBookId()}, this);
 	}
-	
+
 	public List<BookCopies> readAllByBranch (Branch bh) throws SQLException {
-		return (List<BookCopies>) read (
+		return template.query (
 				"select * from tbl_book_copies where branchId = ?", 
-				new Object[]{bh.getBranchId()});
+				new Object[]{bh.getBranchId()}, this);
 	}
 
 
 	@Override
-	protected Object convertResult(ResultSet rs) throws SQLException {
+	public List<BookCopies> extractData(ResultSet rs) throws SQLException,
+	DataAccessException{
 		List<BookCopies> cpys = new ArrayList<BookCopies>();
 		while(rs.next()) {
 			BookCopies cpy = new BookCopies();
-			BookDAO bkDAO = new BookDAO();
 			cpy.setBook(bkDAO.readOne(rs.getInt("bookId")));
-			BranchDAO bhDAO = new BranchDAO();
 			cpy.setBranch(bhDAO.readOne(rs.getInt("branchId")));
 			cpy.setOnOfCopies(rs.getInt("noOfCopies"));
 			cpys.add(cpy);
