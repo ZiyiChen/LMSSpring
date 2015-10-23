@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jdbc.lmdo.Author;
@@ -28,8 +27,7 @@ import com.jdbc.lmdo.Genre;
 import com.jdbc.lmdo.Publisher;
 import com.jdbc.lmsys.AdministratorManagementSys;
 
-@Controller
-@EnableTransactionManagement
+@RestController
 public class AdminController {
 
 	@Autowired
@@ -46,7 +44,7 @@ public class AdminController {
 		}
 	}
 	
-	@RequestMapping(value = "/updateBook", method = RequestMethod.POST, consumes = "application/json")
+	@RequestMapping(value = "/updateBook", method = RequestMethod.POST, consumes = "application/json", produces="text/plain")
 	public @ResponseBody String updateBook(@RequestBody Book bk, Locale locale, Model model) {
 		try {
 			adminService.updateBook(bk);

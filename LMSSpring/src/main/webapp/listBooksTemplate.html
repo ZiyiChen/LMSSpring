@@ -30,9 +30,9 @@
 				<td><span ng-repeat="genre in book.genres">
 						{{genre.genreName}}&nbsp, </span></td>
 				<td><button type="button" class="btn btn-primary"
-						ng-click="editBook(book)">Edit</button></td>
+						ng-click="showEditBookModal(book)">Edit</button></td>
 				<td><button type="button" class="btn btn-danger"
-						ng-click="deleteBook(book)">Delete</button></td>
+						ng-click="showDeleteBookModal(book)">Delete</button></td>
 			</tr>
 		</tbody>
 	</table>

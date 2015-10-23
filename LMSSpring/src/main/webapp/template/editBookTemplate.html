@@ -1,40 +1,37 @@
-<div class="modal fade" id="editBookModal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-					<h4 class="modal-title">Edit Book</h4>
-				</div>
-				<div class="modal-body">
-					<form name="editBookForm" action="editBook" method="post">
-						<input type="hidden" id="edBkId">
-						Book Title: <input type="text" name="bookTitle" class="form-control" id="edBkTitle"/> 
-						
-						<br>Book Publisher: 
-						<br><select class="selectpicker" data-width="100%" name="bookPublisher" id="edBkPubSel" data-live-search="true">
-						<option value=-1 selected="selected">...</option>
-						
-						</select> 
-						
-						<br><br>Book Authors: 
-						<br><select name="addedAuthors" data-width="100%" class="selectpicker" id="edBkAuthSel" data-live-search="true" multiple>
-				        </select>
-				        
-						<br><br>Book Genres: 
-						<br><select name="addedGenres" data-width="100%" class="selectpicker" id="edBkGenSel" data-live-search="true" multiple>
-				        </select>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary" onclick="javascript:updateBook();" data-dismiss="modal">Update</button>
-				</div>
+<link rel="stylesheet" href="./Bootstrap/isteven-multi-select.css">
+<div modal="editBookModal">
+	<div class="modal-header">
+		<h4 class="modal-title">Edit Book</h4>
+		<div class="modal-header">
+			<div class="modal-body">
+				Book Title: <input type="text" name="title"
+					class="form-control" ng-model='title'/> <br>Book
+				Publisher:<br>
+				<isteven-multi-select input-model="publishers"
+					output-model="selectedPublisher" button-label="publisherName"
+					item-label="publisherName" tick-property="ticked"
+					selection-mode="single" search-property="publisherName"
+					helper-elements="filter"> </isteven-multi-select>
+
+				<br> <br>Book Authors: <br>
+				<isteven-multi-select input-model="authors"
+					output-model="selectedAuthros" button-label="authorName"
+					item-label="authorName" tick-property="ticked"
+					search-property="authorName" helper-elements="all reset filter">
+				</isteven-multi-select>
+				<br> <br>Book Genres: <br>
+				<isteven-multi-select input-model="genres"
+					output-model="selectedGenres" button-label="genreName"
+					item-label="genreName" tick-property="ticked"
+					search-property="genreName" helper-elements="all reset filter">
+				</isteven-multi-select>
 			</div>
-			<!-- /.modal-content -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" ng-click="cancel()">Close</button>
+				<button type="button" class="btn btn-primary" ng-click="update()">update</button>
+			</div>
 		</div>
-		<!-- /.modal-dialog -->
+		<!-- /.modal-content -->
 	</div>
-	<!-- /.modal -->
+	<!-- /.modal-dialog -->
+</div>

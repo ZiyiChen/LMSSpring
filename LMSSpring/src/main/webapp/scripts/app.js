@@ -50,16 +50,17 @@ lmsModule.controller('listBooksCtrl', ['$scope', '$http', '$uibModal', function 
 	$scope.showBooks();
 
 	$scope.showCreateBookModal = function () {
-		$uibModal.open({
+		var createBookInstance = $uibModal.open({
 			templateUrl: 'template/createBookTemplate.html',
 			controller: 'createBookCtrl',
 			size: 'lg'
 		});
-	}
+		createBookInstance.result.then(function (msg) {
+			$scope.showBooks();
+		}, function () {
 
-	$scope.createBook = function () {
-		$scope.createBookModal = true;
-	};
+		});
+	}
 
 	$scope.$watch('searchText', function(newValue, oldValue) {
 		$scope.showBooks();
@@ -70,7 +71,7 @@ lmsModule.controller('listBooksCtrl', ['$scope', '$http', '$uibModal', function 
 	});
 
 	$scope.showEditBookModal = function (book) {
-		$uibModal.open({
+		var editBookInstance = $uibModal.open({
 			templateUrl: 'template/editBookTemplate.html',
 			controller: 'editBookCtrl',
 			size: 'lg',
@@ -79,6 +80,110 @@ lmsModule.controller('listBooksCtrl', ['$scope', '$http', '$uibModal', function 
 					return book;
 				}
 			}
+		});
+		editBookInstance.result.then(function (msg) {
+			$scope.showBooks();
+		}, function () {
+
+		});
+	}
+}]);
+
+lmsModule.controller('editBookCtrl', ['$scope', '$modalInstance', '$http', 'book', function ($scope, $modalInstance, $http, book) {
+
+	$scope.title = book.title;
+	$http({
+		method: 'GET',
+		url: 'listPublishers'
+	}).then(function successCallback(response) {
+		var datas = response.data;
+		var res = [];
+		angular.forEach(datas, function(data, key) {
+			if (book.publisher) {
+				if (data.publisherId == book.publisher.publisherId) {
+					data.ticked = true;
+				}
+			}
+			this.push(data);
+		}, res);
+		$scope.publishers = res;
+		console.log('success');
+	}, function errorCallback(response) {
+		console.log(response.data);
+	});
+
+	$http({
+		method: 'GET',
+		url: 'listAuthors'
+	}).then (function successCallBack(response) {
+		var datas = response.data;
+		var res = [];
+		angular.forEach(datas, function(data, key) {
+			for (i = 0 ; i < book.authors.length; i ++) {
+				if (book.authors[i].authorId == data.authorId) {
+					data.ticked = true;
+				}
+			}
+			this.push(data);
+		}, res);
+		$scope.authors = res;
+		console.log('success');
+	}, function errorCallback(response) {
+		console.log(response.data);
+	});
+
+	$http({
+		method: 'GET',
+		url: 'listGenres'
+	}).then (function successCallBack(response) {
+		var datas = response.data;
+		var res = [];
+		angular.forEach(datas, function(data, key) {
+			for (i = 0 ; i < book.genres.length; i ++) {
+				if (book.genres[i].genreId == data.genreId) {
+					data.ticked = true;
+				}
+			}
+			this.push(data);
+		}, res);
+		$scope.genres = res;
+		console.log('success');
+	}, function errorCallback(response) {
+		console.log(response.data);
+	});
+
+
+	$scope.cancel = function () {
+		$modalInstance.dismiss('cancel');
+	};
+
+	$scope.update = function () {
+		var auths = [];
+		var gens = [];
+		var pub = !$scope.selectedPublisher[0] ? null : {
+			"publisherId": $scope.selectedPublisher[0].publisherId
+		};
+		angular.forEach($scope.selectedAuthros, function(value, key) {
+			this.push({"authorId": value.authorId});
+		}, auths);
+		angular.forEach($scope.selectedGenres, function(value, key) {
+			this.push({"genreId": value.genreId});
+		}, gens);
+		var bk = {
+				"bookId": book.bookId,
+				"title": $scope.title,
+				"publisher": pub,
+				"genres": gens,
+				"authors": auths
+		};
+
+		$http({
+			method: 'POST',
+			url: 'updateBook',
+			data: bk
+		}).success(function(data) {
+			console.log('success');
+			$modalInstance.close('updated');
 		});
 	}
 }]);
@@ -145,78 +250,8 @@ lmsModule.controller('createBookCtrl', ['$scope', '$modalInstance', '$http', fun
 			data: bk
 		}).success(function(data) {
 			console.log('success');
+			$modalInstance.close('added');
 		});
-		$modalInstance.dismiss('cancel');
-	}
-}]);
-
-lmsModule.controller('editBookCtrl', ['$scope', '$modalInstance', '$http', 'book', function ($scope, $modalInstance, $http, book) {
-	$http({
-		method: 'GET',
-		url: 'listPublishers'
-	}).then(function successCallback(response) {
-		$scope.publishers = response.data;
-		console.log('success');
-	}, function errorCallback(response) {
-		console.log(response.data);
-	});
-
-	$http({
-		method: 'GET',
-		url: 'listAuthors'
-	}).then (function successCallBack(response) {
-		$scope.authors = response.data;
-		console.log('success');
-	}, function errorCallback(response) {
-		console.log(response.data);
-	});
-
-	$http({
-		method: 'GET',
-		url: 'listGenres'
-	}).then (function successCallBack(response) {
-		$scope.genres = response.data;
-		console.log('success');
-	}, function errorCallback(response) {
-		console.log(response.data);
-	});
-
-	
-
-	$scope.cancel = function () {
-		$modalInstance.dismiss('cancel');
-	};
-
-	$scope.update = function () {
-		var auths = [];
-		var gens = [];
-		var pub = !$scope.selectedPublisher[0] ? null : {
-			"publisherId": $scope.selectedPublisher[0].publisherId
-		};
-		angular.forEach($scope.selectedAuthros, function(value, key) {
-			this.push({"authorId": value.authorId});
-		}, auths);
-		angular.forEach($scope.selectedGenres, function(value, key) {
-			this.push({"genreId": value.genreId});
-		}, gens);
-		var bk = {
-				"title": $scope.title,
-				"publisher": pub,
-				"genres": gens,
-				"authors": auths
-		};
-
-		console.log(bk);
-		$http({
-			method: 'POST',
-			url: 'addBook',
-			data: bk
-		}).then (function successCallBack(response) {
-			console.log('success');
-		}, function errorCallback(response) {
-			console.log(response.data);
-		});
-		$modalInstance.dismiss('cancel');
 	}
 }]);
 

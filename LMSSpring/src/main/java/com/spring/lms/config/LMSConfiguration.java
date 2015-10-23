@@ -10,6 +10,9 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.jdbc.lmdao.AuthorDAO;
 import com.jdbc.lmdao.BookDAO;
@@ -21,6 +24,7 @@ import com.jdbc.lmdao.PublisherDAO;
 import com.jdbc.lmsys.AdministratorManagementSys;
 
 @Configuration
+@EnableTransactionManagement
 public class LMSConfiguration {
 
 	@Bean
@@ -59,6 +63,12 @@ public class LMSConfiguration {
 	@Bean
 	public BorrowerDAO brDAO () {
 		return new BorrowerDAO(template());
+	}
+	
+	@Bean
+	public PlatformTransactionManager txManager() {
+		PlatformTransactionManager tx = new DataSourceTransactionManager(datasource());
+		return tx;
 	}
 	
 	@Bean
