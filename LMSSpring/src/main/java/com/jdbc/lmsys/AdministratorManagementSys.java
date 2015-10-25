@@ -10,6 +10,7 @@ package com.jdbc.lmsys;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -261,5 +262,9 @@ public class AdministratorManagementSys {
 	@Transactional
 	public void overrideDueDate(BookLoans bl) throws SQLException {
 		blDAO.overrideDueDate(bl);
+	}
+
+	public List<Map<String, Object>> countBooksByPublishers() throws SQLException {
+		return bkDAO.countBooksByPublishers();
 	}
 }

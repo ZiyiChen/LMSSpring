@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -162,6 +163,10 @@ public class BookDAO extends BaseDAO implements ResultSetExtractor<List<Book>>{
 	public int countBooks(String searchText) throws SQLException {
 		searchText = '%' + searchText + '%';
 		return template.queryForObject("select count(*) from tbl_book where title like ?", new Object[] {searchText}, Integer.class);
+	}
+	
+	public List<Map<String, Object>> countBooksByPublishers () throws SQLException {
+		return template.queryForList("select publisherName, count(bookId) as count from tbl_publisher left join tbl_book on tbl_book.pubId = tbl_publisher.publisherId group by publisherId order by publisherName asc");
 	}
 
 	public List<Book> searchSizedBooks(int pageNo, int pageSize, String searchText) throws SQLException {

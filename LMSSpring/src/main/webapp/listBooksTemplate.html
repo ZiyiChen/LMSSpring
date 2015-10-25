@@ -1,15 +1,23 @@
 <div class="table-responsive">
+
+
+
 	<div class="col-md-2 col-xs-9 nopadding">
 		<input type="text" class="form-control"
 			placeholder="Enter text to search" id="searchText"
 			ng-keyup="listBooks()" ng-model="searchText">
 	</div>
+
+
+
 	<div align="right">
 		<button type="button" class="btn btn-info" data-toggle="modal"
 			ng-click="showCreateBookModal()">
 			<span class="glyphicon glyphicon-plus-sign"></span> Create New Book
 		</button>
 	</div>
+	
+	<count-books-chart> </count-books-chart>
 	<table class="table table-striped">
 		<thead>
 			<tr>
@@ -39,5 +47,6 @@
 </div>
 <div align="middle">
 	<uib-pagination total-items="totalBooks" ng-model="currentPage"
-		items-per-page="pageSize" max-size="maxSize" boundary-links="true" num-pages="numPages"></uib-pagination>
+		items-per-page="pageSize" max-size="maxSize" boundary-links="true"
+		num-pages="numPages"></uib-pagination>
 </div>

@@ -8,6 +8,7 @@ package com.spring.lms;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -76,6 +77,19 @@ public class AdminController {
 			e.printStackTrace();
 			return "List Book Page failed. Reason: " + e.getMessage();
 		}
+	}
+	
+	@RequestMapping(value = "/countBooksByPublishers", method = RequestMethod.GET, produces = "application/json")
+	public @ResponseBody String countBooksByPublishers () {
+		try {
+			List<Map<String, Object>> res = adminService.countBooksByPublishers();
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.writeValueAsString(res);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Count Books By Publishers failed: " + e.getMessage();
+		}
+		
 	}
 	
 	@RequestMapping(value = "/listBooks", method = RequestMethod.GET, produces = "application/json")
