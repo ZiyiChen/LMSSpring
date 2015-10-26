@@ -56,7 +56,7 @@ public class AdminController {
 		}
 	}
 	
-	@RequestMapping(value = "/deleteBook", method = RequestMethod.POST, consumes = "application/json")
+	@RequestMapping(value = "/deleteBook", method = RequestMethod.POST, consumes = "application/json", produces="text/plain")
 	public @ResponseBody String deleteBook(@RequestBody Book bk, Locale locale, Model model) {
 		try {
 			adminService.deleteBook(bk);
@@ -116,6 +116,18 @@ public class AdminController {
 		}
 	}
 	
+	@RequestMapping(value = "/listAuthorsPage/{pageNo}/{pageSize}", method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+	public @ResponseBody String listAuthorsPage(@PathVariable(value = "pageNo") Integer pageNo, @PathVariable(value = "pageSize") Integer pageSize, @RequestParam(value = "searchText", required = false) String searchText) {
+		try {
+			List<Author> aus = adminService.searchAuthors(pageNo, pageSize, searchText);
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.writeValueAsString(aus);
+		}catch (Exception e) {
+			e.printStackTrace();
+			return "List Author Page failed. Reason: " + e.getMessage();
+		}
+	}
+	
 	@RequestMapping(value = "/countBook", method = RequestMethod.GET, produces = "application/json")
 	public @ResponseBody String countBook(@RequestParam(value = "searchText", required = false) String searchText) {
 		try {
@@ -126,7 +138,7 @@ public class AdminController {
 		}
 	}
 	
-	@RequestMapping(value = "/addAuthor", method = RequestMethod.POST, consumes = "application/json")
+	@RequestMapping(value = "/addAuthor", method = RequestMethod.POST, consumes = "application/json", produces="text/plain")
 	public @ResponseBody String addAuthor(@RequestBody Author author, Locale locale, Model model) {
 		try {
 			adminService.insertAuthor(author);
@@ -137,7 +149,7 @@ public class AdminController {
 		}
 	}
 	
-	@RequestMapping(value = "/updateAuthor", method = RequestMethod.POST, consumes = "application/json")
+	@RequestMapping(value = "/updateAuthor", method = RequestMethod.POST, consumes = "application/json", produces="text/plain")
 	public @ResponseBody String updateAuthor(@RequestBody Author author, Locale locale, Model model) {
 		try {
 			adminService.updateAuthor(author);
@@ -148,7 +160,7 @@ public class AdminController {
 		}
 	}
 	
-	@RequestMapping(value = "/deleteAuthor", method = RequestMethod.POST, consumes = "application/json")
+	@RequestMapping(value = "/deleteAuthor", method = RequestMethod.POST, consumes = "application/json", produces="text/plain")
 	public @ResponseBody String deleteAuthor(@RequestBody Author author, Locale locale, Model model) {
 		try {
 			adminService.deleteAuthor(author);
@@ -156,18 +168,6 @@ public class AdminController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "Author delete failed. Reason: " + e.getMessage();
-		}
-	}
-	
-	@RequestMapping(value = "/listAuthorsPage/{pageNo}/{pageSize}/", method = RequestMethod.GET, produces = "application/json")
-	public @ResponseBody String listAuthorsPage(@PathVariable(value = "pageNo") Integer pageNo, @PathVariable(value = "pageSize") Integer pageSize, @RequestParam(value = "searchText", required = false) String searchText) {
-		try {
-			List<Author> aus = adminService.searchAuthors(pageNo, pageSize, searchText);
-			ObjectMapper mapper = new ObjectMapper();
-			return mapper.writeValueAsString(aus);
-		}catch (Exception e) {
-			e.printStackTrace();
-			return "List Author Page failed. Reason: " + e.getMessage();
 		}
 	}
 	

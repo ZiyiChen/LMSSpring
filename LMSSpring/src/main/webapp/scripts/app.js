@@ -9,10 +9,14 @@ lmsModule.config([ "$routeProvider", function($routeProvider) {
 	}).when("/listBooks", {
 		templateUrl : "listBooksTemplate.html",
 		controller: "listBooksCtrl"
+	}).when("/listAuthors", {
+		templateUrl : "listAuthorsTemplate.html",
+		controller: "listAuthorsCtrl"
 	});
 } ]);
 
 //CONTROLLER
+//book controllers
 lmsModule.controller('listBooksCtrl', ['$scope', '$http', '$uibModal', function ($scope, $http, $uibModal) {
 	$scope.currentPage = 1;
 	$scope.maxSize = 10;
@@ -33,7 +37,7 @@ lmsModule.controller('listBooksCtrl', ['$scope', '$http', '$uibModal', function 
 	}
 
 	getBooksCountByPublishers();
-	
+
 	$scope.showBooks = function () {
 		$http({
 			method: 'GET',
@@ -97,6 +101,24 @@ lmsModule.controller('listBooksCtrl', ['$scope', '$http', '$uibModal', function 
 			}
 		});
 		editBookInstance.result.then(function (msg) {
+			getBooksCountByPublishers();
+			$scope.showBooks();
+		}, function () {
+
+		});
+	}
+
+	$scope.showDeleteBookModal = function (book) {
+		var deleBookInstance = $uibModal.open({
+			templateUrl: 'template/deleteBookTemplate.html',
+			controller: 'deleBookCtrl',
+			resolve: {
+				book : function () {
+					return book;
+				}
+			}
+		});
+		deleBookInstance.result.then(function (msg) {
 			getBooksCountByPublishers();
 			$scope.showBooks();
 		}, function () {
@@ -204,6 +226,26 @@ lmsModule.controller('editBookCtrl', ['$scope', '$modalInstance', '$http', 'book
 	}
 }]);
 
+lmsModule.controller('deleBookCtrl', ['$scope', '$modalInstance', '$http', 'book', function ($scope, $modalInstance, $http, book) {
+
+	$scope.title = book.title;
+
+	$scope.cancel = function () {
+		$modalInstance.dismiss('cancel');
+	};
+
+	$scope.destory = function () {
+		$http({
+			method: 'POST',
+			url: 'deleteBook',
+			data: book
+		}).success(function(data) {
+			console.log('success');
+			$modalInstance.close('deleted');
+		});
+	}
+}]);
+
 lmsModule.controller('createBookCtrl', ['$scope', '$modalInstance', '$http', function ($scope, $modalInstance, $http) {
 	$http({
 		method: 'GET',
@@ -258,8 +300,6 @@ lmsModule.controller('createBookCtrl', ['$scope', '$modalInstance', '$http', fun
 				"genres": gens,
 				"authors": auths
 		};
-
-		console.log(bk);
 		$http({
 			method: 'POST',
 			url: 'addBook',
@@ -271,15 +311,174 @@ lmsModule.controller('createBookCtrl', ['$scope', '$modalInstance', '$http', fun
 	}
 }]);
 
+//author controllers
+lmsModule.controller('listAuthorsCtrl', ['$scope', '$http', '$uibModal', function ($scope, $http, $uibModal) {
+	$scope.currentPage = 1;
+	$scope.maxSize = 10;
+	$scope.pageSize = 13;
+	$scope.totalAuthors = 13;
+	$scope.searchText = '';
+
+	$scope.showAuthors = function () {
+		$http({
+			method: 'GET',
+			url: 'listAuthorsPage/'+$scope.currentPage+'/'+$scope.pageSize,
+			params:{
+				searchText: $scope.searchText
+			}
+		}).then(function successCallback(response) {
+			$scope.authors = response.data;
+			console.log('success');
+		}, function errorCallback(response) {
+			console.log(response.data);
+		});
+
+		$http({
+			method: 'GET',
+			url: 'countAuthor/',
+			params:{
+				searchText: $scope.searchText
+			}
+		}).then(function successCallback(response) {
+			$scope.totalAuthors = response.data;
+			console.log('success');
+		}, function errorCallback(response) {
+			console.log(response.data);
+		});
+	}
+	$scope.showAuthors();
+
+	$scope.showCreateAuthorModal = function () {
+		var createAuthorInstance = $uibModal.open({
+			templateUrl: 'template/createAuthorTemplate.html',
+			controller: 'createAuthorCtrl'
+		});
+		createAuthorInstance.result.then(function (msg) {
+			$scope.showAuthors();
+		}, function () {
+
+		});
+	}
+
+	$scope.$watch('searchText', function(newValue, oldValue) {
+		$scope.showAuthors();
+	});
+
+	$scope.$watch('currentPage', function(newValue, oldValue) {
+		$scope.showAuthors();
+	});
+
+	$scope.showEditAuthorModal = function (author) {
+		var editAuthorInstance = $uibModal.open({
+			templateUrl: 'template/editAuthorTemplate.html',
+			controller: 'editAuthorCtrl',
+			resolve: {
+				author : function () {
+					return author;
+				}
+			}
+		});
+		editAuthorInstance.result.then(function (msg) {
+			$scope.showAuthors();
+		}, function () {
+
+		});
+	}
+
+	$scope.showDeleteAuthorModal = function (author) {
+		var deleAuthorInstance = $uibModal.open({
+			templateUrl: 'template/deleteAuthorTemplate.html',
+			controller: 'deleAuthorCtrl',
+			resolve: {
+				author : function () {
+					return author;
+				}
+			}
+		});
+		deleAuthorInstance.result.then(function (msg) {
+			$scope.showAuthors();
+		}, function () {
+
+		});
+	}
+}]);
+
+lmsModule.controller('editAuthorCtrl', ['$scope', '$modalInstance', '$http', 'author', function ($scope, $modalInstance, $http, author) {
+
+	$scope.name = author.authorName;
+
+	$scope.cancel = function () {
+		$modalInstance.dismiss('cancel');
+	};
+
+	$scope.update = function () {
+		author.authorName = $scope.name
+
+		$http({
+			method: 'POST',
+			url: 'updateAuthor',
+			data: author
+		}).success(function(data) {
+			console.log('success');
+			$modalInstance.close('updated');
+		});
+	}
+}]);
+
+lmsModule.controller('deleAuthorCtrl', ['$scope', '$modalInstance', '$http', 'author', function ($scope, $modalInstance, $http, author) {
+
+	$scope.name = author.authorName;
+
+	$scope.cancel = function () {
+		$modalInstance.dismiss('cancel');
+	};
+
+	$scope.destory = function () {
+		$http({
+			method: 'POST',
+			url: 'deleteAuthor',
+			data: author
+		}).success(function(data) {
+			console.log('success');
+			$modalInstance.close('deleted');
+		});
+	}
+}]);
+
+lmsModule.controller('createAuthorCtrl', ['$scope', '$modalInstance', '$http', function ($scope, $modalInstance, $http) {
+	$scope.cancel = function () {
+		$modalInstance.dismiss('cancel');
+	};
+
+	$scope.add = function () {
+		var author = {
+				"authorName": $scope.name
+		};
+		$http({
+			method: 'POST',
+			url: 'addAuthor',
+			data: author
+		}).success(function(data) {
+			console.log('success');
+			$modalInstance.close('added');
+		});
+	}
+}]);
+
+
 //DIRECTIVE
 lmsModule.directive ('countBooksChart', ['$window', function($window) {
 	return {
 		restrict: 'E',
+		scope:{data: '='},
 		templateUrl: 'template/bookChartTemplate.html',
 		link: function(scope, element, attrs) {
-			console.log(attrs.data);
-			console.log(scope.booksCountByPublisher);
-			
+
+			scope.$watch('data', function(data) {
+				console.log(scope.data);
+				redrawChart();
+			})
+
 			var d3 = $window.d3;
 			var rawSvg=element.find('svg');
 			var svg = d3.select(rawSvg[0]);
@@ -287,12 +486,6 @@ lmsModule.directive ('countBooksChart', ['$window', function($window) {
 			var padding = parseInt(attrs.padding) || 20,
 			barPadding = parseInt(attrs.barPadding) || 0.1;
 
-			scope.$watch(function() {
-				return scope.booksCountByPublisher;
-			}, function() {
-				redrawChart();
-			});
-			
 			$window.onresize = function() {
 				scope.$apply();
 			};
@@ -304,19 +497,19 @@ lmsModule.directive ('countBooksChart', ['$window', function($window) {
 
 			var redrawChart = function () {
 				svg.selectAll('*').remove();
-				if (!scope.booksCountByPublisher) return;
-
-				var es = d3.select(element[0]).node();
-				var ek = d3.select(element[0]).node().offsetParent.offsetWidth;
+				svg.attr("class", null);
+				if (!scope.data) return;
+				
+				svg.attr("class", "chart");
 				var width = d3.select(element[0]).node().offsetWidth,
 				height = 200;
-
+				
 				var xScale = d3.scale.ordinal()
-				.domain(scope.booksCountByPublisher.map(function(d) { return d.publisherName; }))
+				.domain(scope.data.map(function(d) { return d.publisherName; }))
 				.rangeBands([padding, width - 2 * padding], barPadding);
 
 				var yScale = d3.scale.linear()
-				.domain([0, d3.max(scope.booksCountByPublisher, function(d) {return d.count;})])
+				.domain([0, d3.max(scope.data, function(d) {return d.count;})])
 				.range([height - padding, padding]);
 
 				var xAxis = d3.svg.axis()
@@ -339,7 +532,7 @@ lmsModule.directive ('countBooksChart', ['$window', function($window) {
 				.call(yAxis);
 
 				svg.selectAll(".bar")
-				.data(scope.booksCountByPublisher)
+				.data(scope.data)
 				.enter()
 				.append("rect")
 				.attr("class", "bar")
@@ -352,83 +545,3 @@ lmsModule.directive ('countBooksChart', ['$window', function($window) {
 		}
 	};
 }]);
-
-
-//lmsModule.directive('createBookModal', ['$http', function($http) {
-//return {
-//restrict: 'E',
-//scope: {
-
-//},
-//templateUrl: 'template/createBookTemplate.html',
-//link: function ($scope, element, attrs) {
-//$http({
-//method: 'GET',
-//url: 'listPublishers'
-//}).then(function successCallback(response) {
-//$scope.publishers = response.data;
-//console.log('success');
-//}, function errorCallback(response) {
-//console.log(response.data);
-//});
-
-//$http({
-//method: 'GET',
-//url: 'listAuthors'
-//}).then (function successCallBack(response) {
-//$scope.authors = response.data;
-//console.log('success');
-//}, function errorCallback(response) {
-//console.log(response.data);
-//});
-
-//$http({
-//method: 'GET',
-//url: 'listGenres'
-//}).then (function successCallBack(response) {
-//$scope.genres = response.data;
-//console.log('success');
-//}, function errorCallback(response) {
-//console.log(response.data);
-//});
-//$scope.addBook = function () {
-//angular.forEach($scope.selectedAuths, function(value, key) {
-//this.push({"authorId": value.id,
-//"authorName": null,
-//"books": null});
-//}, auths);
-//angular.forEach($scope.selectedGens, function(value, key) {
-//this.push({"genreId": value.id,
-//"genreName": null,
-//"books": null});
-//}, gens);
-//var bk = {
-//"bookId": null,
-//"title": $scope.title,
-//"publisher": {
-//"publisherId": $scope.selectedPublisher.id,
-//"publisherName": null,
-//"address": null,
-//"phone": null,
-//"books": null
-//},
-//"genres": gens,
-//"authors": auths,
-//"copies": null,
-//"loans": null
-//};
-
-//$http({
-//method: 'POST',
-//url: 'addBook',
-//data: {book : bk}
-//}).then (function successCallBack(response) {
-//console.log('success');
-//}, function errorCallback(response) {
-//console.log(response.data);
-//});
-//}
-
-//}
-//};
-//}]);

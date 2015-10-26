@@ -1,0 +1,43 @@
+<div class="table-responsive">
+
+
+
+	<div class="col-md-2 col-xs-9 nopadding">
+		<input type="text" class="form-control"
+			placeholder="Enter text to search" id="searchText"
+			ng-keyup="listAuthors()" ng-model="searchText">
+	</div>
+
+
+
+	<div align="right">
+		<button type="button" class="btn btn-info" data-toggle="modal"
+			ng-click="showCreateAuthorModal()">
+			<span class="glyphicon glyphicon-plus-sign"></span> Create New Author
+		</button>
+	</div>
+	
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Author Name</th>
+				<th>Edit</th>
+				<th>Delete</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="author in authors">
+				<td>{{author.authorName}}</td>
+				<td><button type="button" class="btn btn-primary"
+						ng-click="showEditAuthorModal(author)">Edit</button></td>
+				<td><button type="button" class="btn btn-danger"
+						ng-click="showDeleteAuthorModal(author)">Delete</button></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div align="middle">
+	<uib-pagination total-items="totalAuthors" ng-model="currentPage"
+		items-per-page="pageSize" max-size="maxSize" boundary-links="true"
+		num-pages="numPages"></uib-pagination>
+</div>
