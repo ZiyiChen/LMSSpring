@@ -12,6 +12,9 @@ lmsModule.config([ "$routeProvider", function($routeProvider) {
 	}).when("/listAuthors", {
 		templateUrl : "listAuthorsTemplate.html",
 		controller: "listAuthorsCtrl"
+	}).when("/listPublishers", {
+		templateUrl : "listPublishersTemplate.html",
+		controller: "listPublishersCtrl"
 	});
 } ]);
 
@@ -412,7 +415,7 @@ lmsModule.controller('editAuthorCtrl', ['$scope', '$modalInstance', '$http', 'au
 	};
 
 	$scope.update = function () {
-		author.authorName = $scope.name
+		author.authorName = $scope.name;
 
 		$http({
 			method: 'POST',
@@ -445,6 +448,7 @@ lmsModule.controller('deleAuthorCtrl', ['$scope', '$modalInstance', '$http', 'au
 	}
 }]);
 
+
 lmsModule.controller('createAuthorCtrl', ['$scope', '$modalInstance', '$http', function ($scope, $modalInstance, $http) {
 	$scope.cancel = function () {
 		$modalInstance.dismiss('cancel');
@@ -465,6 +469,165 @@ lmsModule.controller('createAuthorCtrl', ['$scope', '$modalInstance', '$http', f
 	}
 }]);
 
+//publisher controllers
+lmsModule.controller('listPublishersCtrl', ['$scope', '$http', '$uibModal', function ($scope, $http, $uibModal) {
+	$scope.currentPage = 1;
+	$scope.maxSize = 10;
+	$scope.pageSize = 13;
+	$scope.totalPublishers = 13;
+	$scope.searchText = '';
+
+	$scope.showPublishers = function () {
+		$http({
+			method: 'GET',
+			url: 'listPublishersPage/'+$scope.currentPage+'/'+$scope.pageSize,
+			params:{
+				searchText: $scope.searchText
+			}
+		}).then(function successCallback(response) {
+			$scope.publishers = response.data;
+			console.log('success');
+		}, function errorCallback(response) {
+			console.log(response.data);
+		});
+
+		$http({
+			method: 'GET',
+			url: 'countPublisher/',
+			params:{
+				searchText: $scope.searchText
+			}
+		}).then(function successCallback(response) {
+			$scope.totalPublishers = response.data;
+			console.log('success');
+		}, function errorCallback(response) {
+			console.log(response.data);
+		});
+	}
+	$scope.showPublishers();
+
+	$scope.showCreatePublisherModal = function () {
+		var createPublisherInstance = $uibModal.open({
+			templateUrl: 'template/createPublisherTemplate.html',
+			controller: 'createPublisherCtrl'
+		});
+		createPublisherInstance.result.then(function (msg) {
+			$scope.showPublishers();
+		}, function () {
+
+		});
+	}
+
+	$scope.$watch('searchText', function(newValue, oldValue) {
+		$scope.showPublishers();
+	});
+
+	$scope.$watch('currentPage', function(newValue, oldValue) {
+		$scope.showPublishers();
+	});
+
+	$scope.showEditPublisherModal = function (publisher) {
+		var editPublisherInstance = $uibModal.open({
+			templateUrl: 'template/editPublisherTemplate.html',
+			controller: 'editPublisherCtrl',
+			resolve: {
+				publisher : function () {
+					return publisher;
+				}
+			}
+		});
+		editPublisherInstance.result.then(function (msg) {
+			$scope.showPublishers();
+		}, function () {
+
+		});
+	}
+
+	$scope.showDeletePublisherModal = function (publisher) {
+		var delePublisherInstance = $uibModal.open({
+			templateUrl: 'template/deletePublisherTemplate.html',
+			controller: 'delePublisherCtrl',
+			resolve: {
+				publisher : function () {
+					return publisher;
+				}
+			}
+		});
+		delePublisherInstance.result.then(function (msg) {
+			$scope.showPublishers();
+		}, function () {
+
+		});
+	}
+}]);
+
+lmsModule.controller('editPublisherCtrl', ['$scope', '$modalInstance', '$http', 'publisher', function ($scope, $modalInstance, $http, publisher) {
+
+	$scope.name = publisher.publisherName;
+	$scope.address = publisher.address;
+	$scope.phone = publisher.phone;
+
+	$scope.cancel = function () {
+		$modalInstance.dismiss('cancel');
+	};
+
+	$scope.update = function () {
+		publisher.publisherName = $scope.name;
+		publisher.address = $scope.address;
+		publisher.phone = $scope.phone;
+		$http({
+			method: 'POST',
+			url: 'updatePublisher',
+			data: publisher
+		}).success(function(data) {
+			console.log('success');
+			$modalInstance.close('updated');
+		});
+	}
+}]);
+
+lmsModule.controller('delePublisherCtrl', ['$scope', '$modalInstance', '$http', 'publisher', function ($scope, $modalInstance, $http, publisher) {
+
+	$scope.name = publisher.publisherName;
+
+	$scope.cancel = function () {
+		$modalInstance.dismiss('cancel');
+	};
+
+	$scope.destory = function () {
+		$http({
+			method: 'POST',
+			url: 'deletePublisher',
+			data: publisher
+		}).success(function(data) {
+			console.log('success');
+			$modalInstance.close('deleted');
+		});
+	}
+}]);
+
+
+lmsModule.controller('createPublisherCtrl', ['$scope', '$modalInstance', '$http', function ($scope, $modalInstance, $http) {
+	$scope.cancel = function () {
+		$modalInstance.dismiss('cancel');
+	};
+
+	$scope.add = function () {
+		var publisher = {
+				"publisherName": $scope.name,
+				"address": $scope.address,
+				"phone": $scope.phone
+		};
+		$http({
+			method: 'POST',
+			url: 'addPublisher',
+			data: publisher
+		}).success(function(data) {
+			console.log('success');
+			$modalInstance.close('added');
+		});
+	}
+}]);
 
 //DIRECTIVE
 lmsModule.directive ('countBooksChart', ['$window', function($window) {

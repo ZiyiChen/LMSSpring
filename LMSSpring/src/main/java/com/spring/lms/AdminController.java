@@ -193,7 +193,7 @@ public class AdminController {
 		}
 	}
 	
-	@RequestMapping(value = "/addPublisher", method = RequestMethod.POST, consumes = "application/json")
+	@RequestMapping(value = "/addPublisher", method = RequestMethod.POST, consumes = "application/json", produces="text/plain")
 	public @ResponseBody String addPublisher(@RequestBody Publisher pub, Locale locale, Model model) {
 		try {
 			adminService.insertPublisher(pub);
@@ -204,7 +204,7 @@ public class AdminController {
 		}
 	}
 	
-	@RequestMapping(value = "/updatePublisher", method = RequestMethod.POST, consumes = "application/json")
+	@RequestMapping(value = "/updatePublisher", method = RequestMethod.POST, consumes = "application/json", produces="text/plain")
 	public @ResponseBody String updateAuthor(@RequestBody Publisher pub, Locale locale, Model model) {
 		try {
 			adminService.updatePublisher(pub);
@@ -215,7 +215,7 @@ public class AdminController {
 		}
 	}
 	
-	@RequestMapping(value = "/deletePublisher", method = RequestMethod.POST, consumes = "application/json")
+	@RequestMapping(value = "/deletePublisher", method = RequestMethod.POST, consumes = "application/json", produces="text/plain")
 	public @ResponseBody String deletePublisher(@RequestBody Publisher pub, Locale locale, Model model) {
 		try {
 			adminService.deletePublisher(pub);
@@ -238,7 +238,7 @@ public class AdminController {
 		}
 	}
 	
-	@RequestMapping(value = "/listPublishersPage/{pageNo}/{pageSize}/", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/listPublishersPage/{pageNo}/{pageSize}", method = RequestMethod.GET, produces = "application/json")
 	public @ResponseBody String listPublishersPage(@PathVariable(value = "pageNo") Integer pageNo, @PathVariable(value = "pageSize") Integer pageSize, @RequestParam(value = "searchText", required = false) String searchText) {
 		try {
 			List<Publisher> pubs = adminService.searchPublishers(pageNo, pageSize, searchText);
